@@ -37,7 +37,7 @@ export default function App() {
     <WebView
       style={styles.container}
       source={{
-        uri: `http://localhost:3000/?${query}`
+        uri: `https://wordpanda.app/?${query}`
       }}
       webviewDebuggingEnabled={true}
       allowFileAccess={true}
