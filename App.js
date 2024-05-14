@@ -1,10 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, Platform, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Platform, StyleSheet, Text, View,NativeModules } from 'react-native';
 import { WebView } from 'react-native-webview';
 import app from './app.json'
 import * as Sharing from 'expo-sharing';
 import * as Linking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
+const { StatusBarManager } = NativeModules;
+const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 
 export default function App() {
   const values = {
@@ -14,7 +16,8 @@ export default function App() {
     os: Platform.OS,
     version: Platform.Version,
     devicePixelRatio: Dimensions.get('window').scale,
-    appVersion: app.expo.version
+    appVersion: app.expo.version,
+    statusBarHeight: STATUSBAR_HEIGHT
   }
   const query = Object.keys(values).map(key => `${key}=${values[key]}`).join('&');
   const functions = {
@@ -29,11 +32,21 @@ export default function App() {
     }
 
   }
-  return (
+  const SCRIPT = `
+  const meta = document.createElement('meta');
+  meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); 
+  meta.setAttribute('name', 'viewport');
+  document.head.appendChild(meta);
+  var style = document.createElement(‘style’);
+  style.innerHTML = “input,select:focus, textarea {font-size: 16px !important;}”; 
+  document.head.appendChild(style);  
+  alert('Hello from React Native')
+  `;
+    return (
     <WebView
       style={styles.container}
       source={{
-        uri: `http://localhost:3001/?${query}`
+        uri: `http://localhost:3000/?${query}`
       }}
       webviewDebuggingEnabled={true}
       allowFileAccess={true}
@@ -41,6 +54,13 @@ export default function App() {
       allowsFullscreenVideo={true}
       allowFileAccessFromFileURLs={true}
       scrollEnabled={false}
+      setBuiltInZoomControls={false}
+      setDisplayZoomControls={false}
+      automaticallyAdjustContentInsets={false}
+      injectedJavaScript={SCRIPT}
+      renderLoading={() => <View style={styles.container}><Text>Loading...</Text></View>}
+      bounces={false}
+
       onMessage={(event) => {
         try {
           const data = JSON.parse(event.nativeEvent.data);
