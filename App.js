@@ -32,16 +32,7 @@ export default function App() {
     }
 
   }
-  const SCRIPT = `
-  const meta = document.createElement('meta');
-  meta.setAttribute('content', 'width=device-width, initial-scale=0.5, maximum-scale=0.5, user-scalable=0'); 
-  meta.setAttribute('name', 'viewport');
-  document.head.appendChild(meta);
-  var style = document.createElement(‘style’);
-  style.innerHTML = “input,select:focus, textarea {font-size: 16px !important;}”; 
-  document.head.appendChild(style);  
-  alert('Hello from React Native')
-  `;
+
     return (
     <WebView
       style={styles.container}
@@ -57,10 +48,8 @@ export default function App() {
       setBuiltInZoomControls={false}
       setDisplayZoomControls={false}
       automaticallyAdjustContentInsets={false}
-      injectedJavaScript={SCRIPT}
       renderLoading={() => <View style={styles.container}><Text>Loading...</Text></View>}
       bounces={false}
-
       onMessage={(event) => {
         try {
           const data = JSON.parse(event.nativeEvent.data);
