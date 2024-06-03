@@ -1,14 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
-import { Dimensions, Platform, StyleSheet, Text, View,NativeModules } from 'react-native';
+import { Dimensions, Platform, StyleSheet, Text, View, NativeModules } from 'react-native';
 import { WebView } from 'react-native-webview';
 import app from './app.json'
 import * as Sharing from 'expo-sharing';
 import * as Linking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
+import { setStatusBarHidden } from 'expo-status-bar';
+import { setVisibilityAsync } from 'expo-navigation-bar';
+import { useEffect } from 'react';
+
 const { StatusBarManager } = NativeModules;
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 
 export default function App() {
+
   const values = {
     device: 'Mobile',
     width: Dimensions.get('window').width,
@@ -17,9 +22,13 @@ export default function App() {
     version: Platform.Version,
     devicePixelRatio: Dimensions.get('window').scale,
     appVersion: app.expo.version,
-    statusBarHeight: STATUSBAR_HEIGHT
+    statusBarHeight: STATUSBAR_HEIGHT,
   }
   const query = Object.keys(values).map(key => `${key}=${values[key]}`).join('&');
+  useEffect(() => {
+    setStatusBarHidden(true)
+    setVisibilityAsync('hidden')
+  }, [])
   const functions = {
     sharing: (values) => {
       Sharing.shareAsync(...values)
@@ -29,13 +38,25 @@ export default function App() {
     },
     vibration: (values) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle[values])
-    }
+    },
+    setStatusBarHidden: (values) => {
+      setStatusBarHidden(values)
+    },
+    setNavigationVisibility: (value) => {
+      setVisibilityAsync(!value ? 'hidden' : 'visible')
+    },
+
 
   }
 
-    return (
+  return (
+
     <WebView
-      style={styles.container}
+      style={{
+        ...styles.container,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      }}
       source={{
         uri: `https://wordpanda.app/?${query}`
       }}
